@@ -28,7 +28,7 @@ const RECOMMENDATIONS_QUERY = `#graphql
 //  'https://quickstart-75eeb56f.myshopify.com/api/2024-01/graphql.json';
 const AI_RECOMMENDATIONS_URL =
   'https://hydrogenstore.myshopify.com/api/2024-01';
-const API_KEY = 'prtapi_f2465b352adf269b1c779125e7dee2c7';
+const API_KEY = '';
 
 export async function loader({request, context}) {
   const url = new URL(request.url);
