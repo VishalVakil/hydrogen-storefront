@@ -1,0 +1,45 @@
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+{% section 'product-template' %}
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org/",
+  "@type": "Product",
+  "name": {{ product.title | json }},
+  "url": {{ shop.url | append: product.url | json }},
+  "image": [
+    {{ product.featured_image | img_url: 'grande' | json }}
+  ],
+  "description": {{ product.description | strip_html | json }},
+  "brand": {
+    "@type": "Brand",
+    "name": {{ product.vendor | json }}
+  },
+  "offers": [
+    {
+      "@type": "Offer",
+      "availability": "http://schema.org/{% if current_variant.available %}InStock{% else %}OutOfStock{% endif %}",
+      "price": {{ current_variant.price | divided_by: 100.00 | json }},
+      "priceCurrency": "USD",
+      "itemCondition": "http://schema.org/NewCondition",
+      "seller": {
+        "@type": "Organization",
+        "name": {{ shop.name | json }}
+      }
+    }
+  ]
+}
+</script>
+
+<script type="application/json" data-product-json>
+  {
+    "id": {{ product.id | json }},
+    "title": {{ product.title | json }},
+    "handle": {{ product.handle | json }},
+    "variants": {{ product.variants | json }},
+    "images": {{ product.images | json }},
+    "featured_image": {{ product.featured_image | json }},
+    "options": {{ product.options | json }}
+  }
+</script>

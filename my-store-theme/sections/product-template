@@ -1,0 +1,70 @@
+{% assign current_variant = product.selected_or_first_available_variant %}
+
+<div class="product-template__container"
+  id="ProductSection-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="product"
+  data-enable-history-state="true"
+>
+  <div class="product-single__media-group">
+    {% if product.featured_image %}
+    <div class="product-single__media-wrapper">
+      <div class="product-single__media">
+        <img src="{{ product.featured_image | img_url: 'large' }}"
+             alt="{{ product.featured_image.alt | escape }}"
+             class="product-featured-media"
+             data-product-featured-media>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="product-single__meta">
+    <h1 class="product-single__title h2">{{ product.title }}</h1>
+
+    <div class="product-single__prices">
+      <span class="product-single__price" data-price>
+        {{ current_variant.price | money_with_currency }}
+      </span>
+
+      {% if product.compare_at_price_max > product.price %}
+        <span class="product-single__price--compare-at">
+          {{ current_variant.compare_at_price | money }}
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="product-single__description rte">
+      {{ product.description }}
+    </div>
+
+    {% render 'product-form', product: product, current_variant: current_variant %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product pages",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_quantity_selector",
+      "label": "Show quantity selector",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_variant_labels",
+      "label": "Show variant labels",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_payment_button",
+      "label": "Show dynamic checkout button",
+      "info": "Each customer will see their preferred payment method from those available on your store.",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,135 @@
+{%- assign product_form_id = 'product-form-' | append: section.id -%}
+
+<div class="product-form">
+  {% form 'product', product, id: product_form_id, class: 'form' %}
+    {% unless product.has_only_default_variant %}
+      <div class="product-form__variants">
+        {% for option in product.options_with_values %}
+          <div class="product-form__option">
+            {% if section.settings.show_variant_labels %}
+              <label class="product-form__label" for="Option{{ option.position }}-{{ section.id }}">
+                {{ option.name }}
+              </label>
+            {% endif %}
+
+            <select
+              id="Option{{ option.position }}-{{ section.id }}"
+              class="product-form__select"
+              name="options[{{ option.name | escape }}]"
+              data-option-position="{{ option.position }}"
+            >
+              {% for value in option.values %}
+                <option
+                  value="{{ value | escape }}"
+                  {% if option.selected_value == value %}selected="selected"{% endif %}
+                >
+                  {{ value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endfor %}
+      </div>
+    {% endunless %}
+
+    <select name="id" id="ProductSelect-{{ section.id }}" class="product-form__variants no-js">
+      {% for variant in product.variants %}
+        <option
+          {% if variant == current_variant %}selected="selected"{% endif %}
+          {% unless variant.available %}disabled="disabled"{% endunless %}
+          value="{{ variant.id }}"
+        >
+          {{ variant.title }} - {{ variant.price | money_with_currency }}
+        </option>
+      {% endfor %}
+    </select>
+
+    {% if section.settings.show_quantity_selector %}
+      <div class="product-form__quantity">
+        <label for="Quantity-{{ section.id }}">{{ 'products.product.quantity' | t }}</label>
+        <input
+          type="number"
+          id="Quantity-{{ section.id }}"
+          name="quantity"
+          value="1"
+          min="1"
+          class="product-form__input"
+          pattern="[0-9]*"
+        >
+      </div>
+    {% endif %}
+
+    <div class="product-form__error-message-wrapper" role="alert" hidden>
+      <span class="product-form__error-message"></span>
+    </div>
+
+    <div class="product-form__buttons">
+      <button
+        type="submit"
+        name="add"
+        class="product-form__submit button button--full-width {% if section.settings.enable_payment_button %}button--secondary{% else %}button--primary{% endif %}"
+        {% if current_variant.available == false %}disabled{% endif %}
+      >
+        <span>
+          {%- if current_variant.available -%}
+            {{ 'products.product.add_to_cart' | t }}
+          {%- else -%}
+            {{ 'products.product.sold_out' | t }}
+          {%- endif -%}
+        </span>
+      </button>
+
+      {%- if section.settings.enable_payment_button -%}
+        {{ form | payment_button }}
+      {%- endif -%}
+    </div>
+  {% endform %}
+</div>
+
+<script>
+  // Handle variant selection changes
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('{{ product_form_id }}');
+    const variantSelects = form.querySelectorAll('.product-form__select');
+    const priceElement = document.querySelector('[data-price]');
+
+    variantSelects.forEach(select => {
+      select.addEventListener('change', function() {
+        const selectedOptions = Array.from(variantSelects).map(select => select.value);
+        const selectedVariant = findVariant(selectedOptions);
+        
+        if (selectedVariant) {
+          updatePrice(selectedVariant);
+          updateURL(selectedVariant);
+          updateFormID(selectedVariant);
+        }
+      });
+    });
+
+    function findVariant(selectedOptions) {
+      return window.productJSON.variants.find(variant => {
+        return selectedOptions.every((option, index) => {
+          return variant.options[index] === option;
+        });
+      });
+    }
+
+    function updatePrice(variant) {
+      if (variant) {
+        priceElement.innerHTML = formatMoney(variant.price);
+      }
+    }
+
+    function updateURL(variant) {
+      if (variant) {
+        window.history.replaceState({}, '', `${window.location.pathname}?variant=${variant.id}`);
+      }
+    }
+
+    function updateFormID(variant) {
+      if (variant) {
+        form.querySelector('[name="id"]').value = variant.id;
+      }
+    }
+  });
+</script>
