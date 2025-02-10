@@ -39,4 +39,18 @@ To run development on local:
 npm run dev
 ```
 
+To run on local first install dependancies and then set the SESSION_SECRET environment variable in the .env file.
+
+Create a .env file in the root folder and assign the value to SESSION_SECRET.
+
+To get a SESSION_SECRET value, follow the below steps:
+
+Go to terminal and type:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+Assign this value to the variable in .env file.
+
+Now got to http://localhost:3000/ and refresh once.
+
 (Note: Follow https://github.com/VishalVakil/hydrogen to see how to deploy the Hydrogen legacy app to Vercel)
